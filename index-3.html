@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quotes & Status">
+<title>✨ Quotes & Status</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans:wght@400;600&family=Noto+Sans+Bengali&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a1a;--card:#12122a;--accent:#ff4d6d;--accent2:#4d79ff;--gold:#ffd700;--text:#ffffff;--muted:#888aaa;--border:#2a2a4a}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 20% 20%,rgba(255,77,109,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(77,121,255,.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+.app{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;z-index:1}
+header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(10,10,26,.9);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100}
+.logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header-btns{display:flex;gap:8px}
+.fav-btn-header{border:1px solid var(--border);padding:7px 12px;border-radius:20px;font-size:12px;cursor:pointer;background:none;color:var(--accent)}
+.premium-btn-header{background:linear-gradient(135deg,#ffd700,#ff9500);color:#000;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer}
+.filters{padding:12px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.filters::-webkit-scrollbar{display:none}
+.filter-chip{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;white-space:nowrap;cursor:pointer;transition:all .3s;font-family:'Noto Sans',sans-serif}
+.filter-chip.active{background:var(--accent);border-color:var(--accent);color:white;font-weight:600}
+.lang-filters{padding:8px 16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.lang-filters::-webkit-scrollbar{display:none}
+.lang-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;white-space:nowrap;cursor:pointer;transition:all .3s}
+.lang-chip.active{background:var(--accent2);border-color:var(--accent2);color:white}
+.quote-section{flex:1;padding:16px;display:flex;flex-direction:column;gap:14px}
+.quote-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:28px 22px;position:relative;overflow:hidden;animation:fadeIn .4s ease;min-height:200px;display:flex;flex-direction:column;justify-content:center}
+.quote-card::before{content:'"';position:absolute;top:-10px;left:16px;font-family:'Playfair Display',serif;font-size:120px;color:rgba(255,77,109,.08);line-height:1}
+.quote-glow{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));border-radius:24px 24px 0 0}
+.premium-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,#ffd700,#ff9500);color:#000;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;z-index:2}
+.lock-overlay{position:absolute;inset:0;background:rgba(10,10,26,.93);border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:10}
+.lock-icon{font-size:44px}
+.lock-text{font-size:17px;font-weight:700;color:var(--gold)}
+.lock-subtext{font-size:13px;color:var(--muted);text-align:center;padding:0 20px}
+.unlock-btn{background:linear-gradient(135deg,#ffd700,#ff9500);color:#000;border:none;padding:11px 26px;border-radius:20px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+.quote-text{font-size:19px;line-height:1.7;color:var(--text);text-align:center;position:relative;z-index:1;font-family:'Playfair Display',serif}
+.quote-text.urdu{font-family:'Noto Nastaliq Urdu',serif;direction:rtl;font-size:17px}
+.quote-text.bengali{font-family:'Noto Sans Bengali',sans-serif}
+.quote-meta{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.quote-category{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.quote-counter{font-size:12px;color:var(--muted)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:13px;border-radius:16px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Noto Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn:active{transform:scale(.96)}
+.btn-next{background:linear-gradient(135deg,var(--accent),#c9184a);color:white;grid-column:1/-1}
+.btn-share{background:linear-gradient(135deg,#25D366,#128C7E);color:white}
+.btn-fav{background:var(--card);border:1px solid var(--border);color:var(--accent)}
+.btn-fav.saved{background:rgba(255,77,109,.1);border-color:var(--accent)}
+.btn-copy{background:var(--card);border:1px solid var(--border);color:var(--accent2);grid-column:1/-1}
+.cat-motivational{background:rgba(255,165,0,.15);color:#ffa500}
+.cat-love{background:rgba(255,77,109,.15);color:#ff4d6d}
+.cat-sad{background:rgba(77,121,255,.15);color:#4d79ff}
+.cat-islamic{background:rgba(0,200,150,.15);color:#00c896}
+.cat-funny{background:rgba(255,220,0,.15);color:#ffdc00}
+.cat-festival{background:rgba(200,100,255,.15);color:#c864ff}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:24px 24px 0 0;padding:20px;width:100%;max-height:80vh;overflow-y:auto;animation:slideUp .3s ease}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--accent)}
+.modal-close{background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer}
+.payment-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);text-align:center;margin-bottom:6px}
+.payment-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:18px}
+.plan-card{background:rgba(255,215,0,.08);border:2px solid var(--gold);border-radius:20px;padding:18px;margin-bottom:14px;text-align:center}
+.plan-price{font-size:38px;font-weight:700;color:var(--gold)}
+.plan-features{margin:10px 0;text-align:left}
+.plan-feature{font-size:13px;color:var(--text);padding:4px 0}
+.upi-box{background:rgba(255,255,255,.05);border-radius:14px;padding:14px;margin-bottom:14px}
+.upi-label{font-size:13px;color:var(--muted);margin-bottom:6px}
+.upi-id{font-size:17px;font-weight:700;color:var(--accent2)}
+.upi-amount{font-size:13px;color:var(--gold);margin-top:4px}
+.pay-btn{width:100%;padding:15px;background:linear-gradient(135deg,#ffd700,#ff9500);color:#000;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:10px}
+.copy-upi-btn{width:100%;padding:13px;background:#1a3a6e;color:white;border:1px solid var(--accent2);border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:14px}
+.confirm-box{background:rgba(77,121,255,.08);border:1px solid var(--accent2);border-radius:14px;padding:14px}
+.confirm-label{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.txn-input{width:100%;padding:11px;background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:10px;color:white;font-size:14px;margin-bottom:10px}
+.confirm-btn{width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer}
+.fav-item{padding:13px;background:rgba(255,255,255,.03);border-radius:12px;margin-bottom:10px;font-size:14px;line-height:1.6;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.fav-delete{background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;flex-shrink:0}
+.no-favs{text-align:center;color:var(--muted);padding:30px;font-size:14px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1e1e3a;border:1px solid var(--border);color:white;padding:11px 22px;border-radius:30px;font-size:14px;z-index:300;transition:transform .3s ease;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">✨ Quotes & Status</div>
+    <div class="header-btns">
+      <button class="fav-btn-header" onclick="openFavs()">❤️ Saved</button>
+      <button class="premium-btn-header" onclick="openPayment()">👑 Premium</button>
+    </div>
+  </header>
+
+  <div class="filters">
+    <button class="filter-chip active" onclick="setCategory('All',this)">🌟 All</button>
+    <button class="filter-chip" onclick="setCategory('Motivational',this)">💪 Motivational</button>
+    <button class="filter-chip" onclick="setCategory('Love',this)">❤️ Love</button>
+    <button class="filter-chip" onclick="setCategory('Sad',this)">💔 Sad</button>
+    <button class="filter-chip" onclick="setCategory('Islamic',this)">🕌 Islamic</button>
+    <button class="filter-chip" onclick="setCategory('Funny',this)">😄 Funny</button>
+    <button class="filter-chip" onclick="setCategory('Festival',this)">🎉 Festival</button>
+  </div>
+
+  <div class="lang-filters">
+    <button class="lang-chip active" onclick="setLanguage('All',this)">🌐 All</button>
+    <button class="lang-chip" onclick="setLanguage('Hindi',this)">🇮🇳 Hindi</button>
+    <button class="lang-chip" onclick="setLanguage('Bengali',this)">🇧🇩 Bengali</button>
+    <button class="lang-chip" onclick="setLanguage('English',this)">🇬🇧 English</button>
+    <button class="lang-chip" onclick="setLanguage('Urdu',this)">🌙 Urdu</button>
+  </div>
+
+  <div class="quote-section">
+    <div class="quote-card" id="quoteCard">
+      <div class="quote-glow"></div>
+      <div id="premiumBadge" class="premium-badge" style="display:none">👑 Premium</div>
+      <div id="lockOverlay" class="lock-overlay" style="display:none">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-text">Premium Quote!</div>
+        <div class="lock-subtext">Sirf ₹29/month mein 200+ special quotes unlock karo!</div>
+        <button class="unlock-btn" onclick="openPayment()">👑 Unlock karo — ₹29/month</button>
+      </div>
+      <div class="quote-text" id="quoteText">Loading...</div>
+      <div class="quote-meta">
+        <span class="quote-category" id="quoteCat"></span>
+        <span class="quote-counter" id="quoteCounter"></span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-next" onclick="nextQuote()">▶ Next Quote</button>
+      <button class="btn btn-share" onclick="shareQuote()">📤 WhatsApp</button>
+      <button class="btn btn-fav" id="favBtn" onclick="toggleFav()">❤️ Save</button>
+      <button class="btn btn-copy" onclick="copyQuote()">📋 Copy Quote</button>
+    </div>
+  </div>
+</div>
+
+<!-- Favourites Modal -->
+<div class="modal-overlay" id="favsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">❤️ Saved Quotes</div>
+      <button class="modal-close" onclick="closeFavs()">×</button>
+    </div>
+    <div id="favsList"></div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div style="text-align:right;margin-bottom:8px"><button class="modal-close" onclick="closePayment()">×</button></div>
+    <div class="payment-title">👑 Premium Unlock Karo</div>
+    <div class="payment-sub">200+ special quotes sirf ₹29/month mein!</div>
+
+    <div class="plan-card">
+      <div class="plan-price">₹29 <span style="font-size:16px;color:var(--muted)">/month</span></div>
+      <div class="plan-features">
+        <div class="plan-feature">✅ 200+ Premium Quotes</div>
+        <div class="plan-feature">✅ Hindi, Bengali, English, Urdu</div>
+        <div class="plan-feature">✅ Romantic, Shayari, Deep Quotes</div>
+        <div class="plan-feature">✅ Har hafte naye quotes</div>
+        <div class="plan-feature">✅ Ads-free experience</div>
+      </div>
+    </div>
+
+    <div class="upi-box">
+      <div class="upi-label">📲 UPI se payment karo:</div>
+      <div class="upi-id">goswamibappakk-1@oksbi</div>
+      <div class="upi-amount">💰 Amount: ₹29 only</div>
+    </div>
+
+    <button class="pay-btn" onclick="openUPI()">📱 GPay / PhonePe / Paytm se Pay Karo</button>
+    <button class="copy-upi-btn" onclick="copyUPI()">📋 UPI ID Copy Karo</button>
+
+    <div class="confirm-box">
+      <div class="confirm-label">✅ Payment karne ke baad Transaction ID yahan likho — ya payment screenshot WhatsApp karo. <strong style="color:var(--accent2)">24 ghante mein unlock ho jayega!</strong></div>
+      <input class="txn-input" id="txnInput" placeholder="Transaction ID (e.g. 123456789012)" />
+      <button class="confirm-btn" onclick="confirmPayment()">✅ Maine Payment Kar Di!</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const UPI_ID='goswamibappakk-1@oksbi';
+const freeQuotes=[
+  {text:"जिंदगी में मुश्किलें आती हैं, हिम्मत रखो",cat:"Motivational",lang:"Hindi"},
+  {text:"हर रात के बाद एक सुबह जरूर आती है",cat:"Motivational",lang:"Hindi"},
+  {text:"सपने देखो और उन्हें पूरा करो",cat:"Motivational",lang:"Hindi"},
+  {text:"मेहनत करो, मंजिल जरूर मिलेगी",cat:"Motivational",lang:"Hindi"},
+  {text:"खुद पर भरोसा रखो, दुनिया झुक जाएगी",cat:"Motivational",lang:"Hindi"},
+  {text:"जिंदगी खुद लिखो, दूसरों को मत दो कलम",cat:"Motivational",lang:"Hindi"},
+  {text:"तुझसे प्यार है मेरा बेपनाह",cat:"Love",lang:"Hindi"},
+  {text:"तेरी याद में हर पल गुजरता है",cat:"Love",lang:"Hindi"},
+  {text:"तू मेरी जिंदगी की खूबसूरत कहानी है",cat:"Love",lang:"Hindi"},
+  {text:"तुझे देखूं तो दिल खुश हो जाता है",cat:"Love",lang:"Hindi"},
+  {text:"मेरी हर दुआ में तेरा नाम है",cat:"Love",lang:"Hindi"},
+  {text:"दर्द इतना है दिल में, बयां नहीं होता",cat:"Sad",lang:"Hindi"},
+  {text:"जो छोड़ गए वो याद बहुत आते हैं",cat:"Sad",lang:"Hindi"},
+  {text:"अकेलापन अब दोस्त बन गया है मेरा",cat:"Sad",lang:"Hindi"},
+  {text:"आंखें नम हैं पर मुस्कुराना जरूरी है",cat:"Sad",lang:"Hindi"},
+  {text:"अल्लाह पर भरोसा रखो, सब ठीक होगा",cat:"Islamic",lang:"Hindi"},
+  {text:"सब्र का फल मीठा होता है",cat:"Islamic",lang:"Hindi"},
+  {text:"हंसते रहो, जिंदगी छोटी है!",cat:"Funny",lang:"Hindi"},
+  {text:"सोमवार को देखकर रोना आता है",cat:"Funny",lang:"Hindi"},
+  {text:"ईद मुबारक, आपको और परिवार को",cat:"Festival",lang:"Hindi"},
+  {text:"জীবনে কঠিন সময় আসে, সাহস রাখো",cat:"Motivational",lang:"Bengali"},
+  {text:"প্রতিটি রাতের পর সুন্দর সকাল আসে",cat:"Motivational",lang:"Bengali"},
+  {text:"পরিশ্রম করো, সাফল্য আসবেই",cat:"Motivational",lang:"Bengali"},
+  {text:"তোমাকে ভালোবাসি, অসীম ভালোবাসি",cat:"Love",lang:"Bengali"},
+  {text:"তুমি আমার জীবনের সুন্দর অধ্যায়",cat:"Love",lang:"Bengali"},
+  {text:"বুকের ভেতর এত কষ্ট, বলতে পারি না",cat:"Sad",lang:"Bengali"},
+  {text:"যে চলে গেছে তাকে খুব মনে পড়ে",cat:"Sad",lang:"Bengali"},
+  {text:"আল্লাহর উপর ভরসা রাখো",cat:"Islamic",lang:"Bengali"},
+  {text:"ধৈর্যের ফল মিষ্টি হয়",cat:"Islamic",lang:"Bengali"},
+  {text:"খুশি থাকো, জীবন ছোট!",cat:"Funny",lang:"Bengali"},
+  {text:"ঈদ মোবারক আপনাকে ও পরিবারকে",cat:"Festival",lang:"Bengali"},
+  {text:"Life is tough, but so are you",cat:"Motivational",lang:"English"},
+  {text:"Every day is a new beginning",cat:"Motivational",lang:"English"},
+  {text:"Believe in yourself and succeed",cat:"Motivational",lang:"English"},
+  {text:"You are the reason I smile every day",cat:"Love",lang:"English"},
+  {text:"My heart belongs to you forever",cat:"Love",lang:"English"},
+  {text:"Missing you is my heart's full time job",cat:"Sad",lang:"English"},
+  {text:"Trust Allah, He has the best plan",cat:"Islamic",lang:"English"},
+  {text:"Life is short, smile while you have teeth!",cat:"Funny",lang:"English"},
+  {text:"Wishing you a Happy New Year! 🎉",cat:"Festival",lang:"English"},
+  {text:"زندگی میں مشکلیں آتی ہیں، حوصلہ رکھو",cat:"Motivational",lang:"Urdu"},
+  {text:"تجھ سے محبت ہے میری بے پناہ",cat:"Love",lang:"Urdu"},
+  {text:"دل میں اتنا درد ہے، بیان نہیں ہوتا",cat:"Sad",lang:"Urdu"},
+  {text:"اللہ پر بھروسہ رکھو، سب ٹھیک ہوگا",cat:"Islamic",lang:"Urdu"},
+  {text:"زندگی چھوٹی ہے، ہنستے رہو!",cat:"Funny",lang:"Urdu"},
+  {text:"عید مبارک آپ کو اور گھر والوں کو! 🌙",cat:"Festival",lang:"Urdu"},
+];
+
+const premiumQuotes=[
+  {text:"तेरी एक मुस्कान पर मैं दुनिया लुटा दूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"इश्क़ में डूब कर ही जिंदगी का मतलब समझ आया",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी आंखों का नूर, दिल का सुकून है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मोहब्बत वो दरिया है जिसमें डूबकर भी चैन मिलता है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी बाहों में जन्नत मिलती है मुझे",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू हो तो हर मौसम सुहाना लगता है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी याद आई तो आंखें भर आईं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तुझसे जुदा होकर जीना मुश्किल है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी आवाज़ सुनकर दिल को सुकून मिलता है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मेरी हर सांस में तेरा नाम है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरा पहला इश्क़, तू मेरा आखिरी प्यार",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना ये दुनिया सूनी लगती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तुझे देखकर लगता है दुनिया खूबसूरत है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मेरे दिल की धड़कन तेरे नाम पर रुकती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी एक झलक दिल को राहत देती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"प्यार में पागल हूं मैं तेरे लिए",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी ज़िंदगी का सबसे हसीन लम्हा है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी मुहब्बत में खोना चाहता हूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरे सपनों की रानी है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे प्यार में डूब के खुद को पाया है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"इश्क़ तेरा है, जान तेरी है, दिल तेरा है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी एक मुस्कुराहट मेरी सारी थकान मिटा देती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू है तो ज़िंदगी में रंग है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना हर खुशी अधूरी लगती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मेरी दुनिया तू ही है, मेरी जन्नत तू ही है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी यादों में जीता हूं, तेरे ख्वाबों में सोता हूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तुझसे प्यार है मुझे, इस जहां से ज़्यादा",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरे दिल का दर्पण है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे साथ हर राह आसान लगती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मेरा दिल सिर्फ तेरे लिए धड़कता है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना जिंदगी अधूरी सी लगती है",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"ज़ख्म तो भर गए पर निशान अभी बाकी हैं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"वो यादें अब भी ताज़ा हैं जो तूने दी थीं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"रोता हूं तो किसी को पता न चले",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"टूटे हुए दिल की आवाज़ कोई नहीं सुनता",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"खामोशी ही मेरा दर्द बयां करती है",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"जो चाहा वो मिला नहीं, जो मिला वो चाहा नहीं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"अकेलेपन में ज़िंदगी गुज़ार रहा हूं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"यादें बड़ी ज़ालिम होती हैं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"दिल के दर्द को कागज़ पर उतारना मुश्किल है",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"रातें काटना मुश्किल हो गया है",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"तेरे जाने के बाद खुशियां भी चली गईं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"बिछड़े हुए लोग हमेशा याद आते हैं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"मुस्कुराता हूं ताकि कोई पूछे न",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"दर्द को सीने में दबाए चलता हूं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"तेरी कमी हर पल महसूस होती है",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"जिसे चाहा उसे भुलाना मुश्किल है",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"अब तो आंसू भी सूख गए हैं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"खुद से भागना चाहता हूं पर कहां जाऊं",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"ज़िंदगी ने धोखा दिया तो क्या हुआ",cat:"Sad",lang:"Hindi",premium:true},
+  {text:"हौसला रखो, मंज़िल दूर नहीं है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"जो गुज़रा वो सपना था, जो आएगा वो अपना होगा",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"तूफान से मत डरो, मंज़िल पर नज़र रखो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"हर मुश्किल एक नई सीख लेकर आती है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"जिसने हार नहीं मानी वो जीत गया",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"खुद पर यकीन रखो, सब मुमकिन है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"नाकामी सफलता की पहली सीढ़ी है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"जब तक सांस है तब तक आस है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"मेहनत का कोई शॉर्टकट नहीं होता",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"कल से बेहतर आज बनाओ",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"टूट कर बिखरना नहीं, टूट कर संवरना है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"अपनी मंज़िल खुद बनाओ",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"हर रात के बाद सवेरा ज़रूर होता है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"जो डरा वो मरा, जो चला वो जीता",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"खुद को साबित करने का वक्त आ गया है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"उठो, चलो, रुको मत",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"ज़िंदगी एक मौका है, इसे जी लो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"सपने वो नहीं जो सोते में आएं",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"अपनी कहानी खुद लिखो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"हर दिन एक नई शुरुआत है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"अल्लाह का शुक्र अदा करो हर हाल में",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"दुआ वो हथियार है जो कभी खाली नहीं जाता",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"जो अल्लाह की राह में है वो कभी अकेला नहीं",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"इस्तग़फ़ार करो, अल्लाह माफ करने वाला है",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"जन्नत उन्हीं को मिलती है जो सब्र करते हैं",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"नमाज़ में सुकून है, इसे छोड़ो मत",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"अल्लाह पर तवक्कुल रखो, वो सबसे बड़ा है",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"हर मुसीबत में अल्लाह को याद करो",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"रोज़ा रखो, दिल साफ होता है",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"क़ुरआन पढ़ो, दिल को राहत मिलेगी",cat:"Islamic",lang:"Hindi",premium:true},
+  {text:"তোমার চোখের ভাষা আমি বুঝি, তুমি না বললেও",cat:"Love",lang:"Bengali",premium:true},
+  {text:"ভালোবাসা মানে প্রতিদিন একটু একটু করে বাড়তে থাকা",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার রাতের তারা, দিনের আলো",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমাকে ছাড়া এই পৃথিবী অসম্পূর্ণ",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার হাসিতে আমার সব কষ্ট মিলিয়ে যায়",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার প্রথম ভালোবাসা, শেষ ইচ্ছা",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার কথা মনে পড়লে মন ভালো হয়ে যায়",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমাকে দেখলে মনে হয় জীবন সুন্দর",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার ভালোবাসায় আমি নতুন জীবন পেয়েছি",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার জীবনের সবচেয়ে সুন্দর উপহার",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার প্রতিটি কথা আমার হৃদয়ে গেঁথে আছে",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমাকে ভালোবাসি এই জীবনে, পরের জীবনেও",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি না থাকলে এই পৃথিবী মূল্যহীন",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার স্পর্শে আমার ব্যথা সেরে যায়",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার স্বপ্নের মানুষ",cat:"Love",lang:"Bengali",premium:true},
+  {text:"বিচ্ছেদের ব্যথা বুকে নিয়ে হাসতে হয়",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"যাকে ভালোবাসলাম, সে আজ অন্যের",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"চোখের জল লুকিয়ে হাসতে হয় সবার সামনে",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"একা থাকাটা কষ্টের কিন্তু অভ্যাস হয়ে গেছে",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"যার জন্য কাঁদলাম, সে জানলই না",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"ভুলতে চাই, কিন্তু ভুলতে পারি না",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"প্রিয় মানুষের অনুপস্থিতি সবচেয়ে বেশি কষ্ট দেয়",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"হৃদয় ভেঙে গেলেও বেঁচে থাকতে হয়",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"স্মৃতি গুলো তাড়া করে বেড়ায়",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"নিঃসঙ্গতা এখন আমার সবচেয়ে বড় সঙ্গী",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"স্বপ্ন দেখা বন্ধ করো না, কারণ স্বপ্নই বদলায় জীবন",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"পথ কঠিন হলেও লক্ষ্য থেকে সরে যেও না",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"প্রতিটি ব্যর্থতা সাফল্যের একটি ধাপ",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"নিজেকে বিশ্বাস করো, তুমি পারবে",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"অন্ধকার যতই গাঢ় হোক, আলো আসবেই",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"হার মেনো না, লড়াই চালিয়ে যাও",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"তোমার সাফল্যই তোমার পরিচয়",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"আজকের পরিশ্রম আগামীর সুখ",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"স্বপ্ন বড় দেখো, কাজ বেশি করো",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"জীবন একটাই, সুন্দর করে বাঁচো",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"Your smile is the most beautiful thing I have ever seen",cat:"Love",lang:"English",premium:true},
+  {text:"In a world full of people, my eyes always find you",cat:"Love",lang:"English",premium:true},
+  {text:"You are not just my love, you are my home",cat:"Love",lang:"English",premium:true},
+  {text:"Every love song reminds me of you",cat:"Love",lang:"English",premium:true},
+  {text:"I did not fall in love with you, I walked into it with my eyes open",cat:"Love",lang:"English",premium:true},
+  {text:"You are the first thought in my morning and last in my night",cat:"Love",lang:"English",premium:true},
+  {text:"Loving you is the best thing that ever happened to me",cat:"Love",lang:"English",premium:true},
+  {text:"You complete me in ways I never knew I was incomplete",cat:"Love",lang:"English",premium:true},
+  {text:"With you, every moment becomes a beautiful memory",cat:"Love",lang:"English",premium:true},
+  {text:"I choose you every single day without hesitation",cat:"Love",lang:"English",premium:true},
+  {text:"You are my favorite notification",cat:"Love",lang:"English",premium:true},
+  {text:"Life is better because you are in it",cat:"Love",lang:"English",premium:true},
+  {text:"You make ordinary moments extraordinary",cat:"Love",lang:"English",premium:true},
+  {text:"My heart knew you before my mind did",cat:"Love",lang:"English",premium:true},
+  {text:"Being with you feels like coming home",cat:"Love",lang:"English",premium:true},
+  {text:"You are worth every sleepless night",cat:"Love",lang:"English",premium:true},
+  {text:"I love you more than words can ever express",cat:"Love",lang:"English",premium:true},
+  {text:"You are the reason I believe in love",cat:"Love",lang:"English",premium:true},
+  {text:"Every day with you is my favorite day",cat:"Love",lang:"English",premium:true},
+  {text:"You are my sunshine on the darkest days",cat:"Love",lang:"English",premium:true},
+  {text:"The worst feeling is loving someone who used to love you",cat:"Sad",lang:"English",premium:true},
+  {text:"Sometimes crying is the only way your eyes speak when your mouth cannot",cat:"Sad",lang:"English",premium:true},
+  {text:"It hurts to let go but sometimes it hurts more to hold on",cat:"Sad",lang:"English",premium:true},
+  {text:"Missing someone who does not miss you back is the loneliest feeling",cat:"Sad",lang:"English",premium:true},
+  {text:"The hardest part is not talking to someone you used to talk to every day",cat:"Sad",lang:"English",premium:true},
+  {text:"Sometimes the person who tries to keep everyone happy is the most lonely",cat:"Sad",lang:"English",premium:true},
+  {text:"I smile to hide the pain that lives behind my eyes",cat:"Sad",lang:"English",premium:true},
+  {text:"The heart was made to be broken",cat:"Sad",lang:"English",premium:true},
+  {text:"Some wounds are too deep for words",cat:"Sad",lang:"English",premium:true},
+  {text:"Silence is the loudest cry when no one is listening",cat:"Sad",lang:"English",premium:true},
+  {text:"Fall seven times, stand up eight",cat:"Motivational",lang:"English",premium:true},
+  {text:"The comeback is always stronger than the setback",cat:"Motivational",lang:"English",premium:true},
+  {text:"Do not wait for opportunity, create it",cat:"Motivational",lang:"English",premium:true},
+  {text:"Your dreams do not have an expiry date",cat:"Motivational",lang:"English",premium:true},
+  {text:"Success is not final, failure is not fatal",cat:"Motivational",lang:"English",premium:true},
+  {text:"Be the energy you want to attract",cat:"Motivational",lang:"English",premium:true},
+  {text:"Every expert was once a beginner",cat:"Motivational",lang:"English",premium:true},
+  {text:"Push yourself because no one else will do it for you",cat:"Motivational",lang:"English",premium:true},
+  {text:"Great things never come from comfort zones",cat:"Motivational",lang:"English",premium:true},
+  {text:"Believe you can and you are halfway there",cat:"Motivational",lang:"English",premium:true},
+  {text:"Work hard in silence, let success make the noise",cat:"Motivational",lang:"English",premium:true},
+  {text:"You are stronger than you think",cat:"Motivational",lang:"English",premium:true},
+  {text:"Start where you are, use what you have, do what you can",cat:"Motivational",lang:"English",premium:true},
+  {text:"One day or day one — you decide",cat:"Motivational",lang:"English",premium:true},
+  {text:"The secret of getting ahead is getting started",cat:"Motivational",lang:"English",premium:true},
+  {text:"Chase your dreams until they become your reality",cat:"Motivational",lang:"English",premium:true},
+  {text:"You did not come this far to only come this far",cat:"Motivational",lang:"English",premium:true},
+  {text:"Be so good they cannot ignore you",cat:"Motivational",lang:"English",premium:true},
+  {text:"Rise up and attack the day with enthusiasm",cat:"Motivational",lang:"English",premium:true},
+  {text:"Your only competition is who you were yesterday",cat:"Motivational",lang:"English",premium:true},
+  {text:"تیری ایک مسکان پر دنیا نچھاور کر دوں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"عشق وہ دریا ہے جس میں ڈوب کر بھی سکون ملتا ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے بغیر زندگی ادھوری سی لگتی ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری آنکھوں میں کھو جانا چاہتا ہوں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تو میری زندگی کا سب سے حسین لمحہ ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"محبت کی کوئی زبان نہیں ہوتی، بس احساس ہوتا ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے عشق میں پاگل ہوں، مجھے ہوش نہیں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری یاد آئی تو آنکھیں بھر آئیں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"دل کی ہر دھڑکن تیرا نام لیتی ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تو میرا پہلا عشق، تو میری آخری تمنا",cat:"Love",lang:"Urdu",premium:true},
+  {text:"زخم تو بھر گئے مگر نشان ابھی باقی ہیں",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"جو چاہا وہ ملا نہیں، جو ملا وہ چاہا نہیں",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"تنہائی میں بھی تیری یاد آتی ہے",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"دل ٹوٹا ہے مگر جینا پڑتا ہے",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"خاموشی میرا سب سے بڑا درد ہے",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"جسے چاہا اسے بھلانا مشکل ہے",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"آنسوؤں کو چھپا کر مسکرانا پڑتا ہے",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"بچھڑے ہوئے لوگ ہمیشہ یاد آتے ہیں",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"اب تو آنسو بھی سوکھ گئے ہیں",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"دل کے درد کو کاغذ پر اتارنا مشکل ہے",cat:"Sad",lang:"Urdu",premium:true},
+  {text:"حوصلہ رکھو، منزل دور نہیں",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"ہر مشکل ایک نئی سیکھ لے کر آتی ہے",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"جس نے ہار نہیں مانی وہ جیت گیا",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"محنت کا کوئی شارٹ کٹ نہیں ہوتا",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"خود پر یقین رکھو، سب ممکن ہے",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"ٹوٹ کر بکھرنا نہیں، ٹوٹ کر سنورنا ہے",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"اپنی منزل خود بناؤ",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"زندگی ایک موقع ہے، اسے جی لو",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"اٹھو، چلو، رکو مت",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"ہر رات کے بعد سویرا ضرور ہوتا ہے",cat:"Motivational",lang:"Urdu",premium:true}
+,
+  {text:"तू मेरी हर सांस में बसा है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना दिल नहीं लगता कहीं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी आंखों में डूब जाना चाहता हूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मेरी जान, मेरी पहचान, तू ही है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तुझसे मिलकर दुनिया खूबसूरत लगती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरा प्यार मेरी ताकत है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू हो तो सब है, तू न हो तो कुछ नहीं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे इश्क़ में खो जाना चाहता हूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मेरे दिल की रानी तू ही है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी मुस्कुराहट मेरी दुनिया है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तुझसे प्यार हुआ तो जीना आया",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी हर खुशी, तू मेरी हर दुआ",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना हर जगह सूनापन है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरा साथ मेरी सबसे बड़ी खुशी है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरे दिल में रहता है हमेशा",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी एक झलक के लिए तरसता हूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तुझसे मिलना मेरी सबसे अच्छी आदत है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना ये रात नहीं कटती",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी दुनिया का सबसे प्यारा हिस्सा है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे साथ हर लम्हा यादगार है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"इश्क़ करना है तो पूरे दिल से करो",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मुहब्बत में न हार होती है न जीत",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी याद आती है तो दिल भर आता है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"प्यार का इज़हार आंखों से होता है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"दिल दिया है, दर्द लिया है, यही प्यार है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"इश्क़ की राह में कांटे भी फूल लगते हैं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी नज़्म, तू मेरी ग़ज़ल है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"दिल के अरमान आंसुओं में बह जाते हैं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मेरी हर धड़कन तेरा नाम जपती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना ज़िंदगी की किताब अधूरी है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"इश्क़ वो आग है जो सब जला देती है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"मोहब्बत में पागल होना ज़रूरी है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी यादों में खोना मुझे अच्छा लगता है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"दिल की बात होंठों तक आती नहीं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तुझसे बिछड़ने का ग़म असहनीय है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"इश्क़ की ये दुनिया बड़ी निराली है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"दर्द-ए-दिल को शायरी में ढालता हूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरी मुहब्बत मेरी इबादत है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"प्यार में सब कुछ खो कर भी खुश हूं",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी रूह की पुकार है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"তোমাকে ভালোবাসি এই মুহূর্তে, সারাজীবন",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি না থাকলে পৃথিবীটা অন্ধকার",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার হাসি দেখলে মন ভালো হয়",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার সাথে সময় কাটানো আমার সেরা মুহূর্ত",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার হৃদয়ের রাজা/রানী",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমাকে ভালোবাসি শব্দটা ছোট মনে হয়",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার কথা মনে পড়লে মুগ্ধ হই",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার সুখের কারণ",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমাকে ছাড়া ভাবতেই পারি না",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার জীবনের আলো",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার ভালোবাসায় আমি সম্পূর্ণ",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার জন্য অপেক্ষা করতে ভালো লাগে",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার স্বপ্নের চেয়েও সুন্দর",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার সাথে থাকলে সব ভয় কেটে যায়",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমাকে পেয়ে জীবন ধন্য হয়েছে",cat:"Love",lang:"Bengali",premium:true},
+  {text:"প্রতিটি মুহূর্তে তোমাকে মনে পড়ে",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার শেষ ইচ্ছা, প্রথম ভালোবাসা",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার হাত ধরে চলতে চাই সারাজীবন",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার চোখে আমার পৃথিবী দেখি",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমাকে ভালোবাসাই আমার ধর্ম",cat:"Love",lang:"Bengali",premium:true},
+  {text:"You are the missing piece in my puzzle of life",cat:"Love",lang:"English",premium:true},
+  {text:"I never knew what love was until I met you",cat:"Love",lang:"English",premium:true},
+  {text:"You make my heart smile in ways I cannot explain",cat:"Love",lang:"English",premium:true},
+  {text:"Every time I see you, I fall in love all over again",cat:"Love",lang:"English",premium:true},
+  {text:"You are my person, my safe place, my everything",cat:"Love",lang:"English",premium:true},
+  {text:"Distance means nothing when someone means everything",cat:"Love",lang:"English",premium:true},
+  {text:"You are the best thing that happened to me",cat:"Love",lang:"English",premium:true},
+  {text:"I love you more than yesterday, less than tomorrow",cat:"Love",lang:"English",premium:true},
+  {text:"You had me at hello",cat:"Love",lang:"English",premium:true},
+  {text:"My favorite place in the world is next to you",cat:"Love",lang:"English",premium:true},
+  {text:"You are the reason I look forward to every new day",cat:"Love",lang:"English",premium:true},
+  {text:"I want to grow old with you",cat:"Love",lang:"English",premium:true},
+  {text:"You are my happily ever after",cat:"Love",lang:"English",premium:true},
+  {text:"With you, I am home wherever we are",cat:"Love",lang:"English",premium:true},
+  {text:"You are the love of my life and the life of my love",cat:"Love",lang:"English",premium:true},
+  {text:"I choose you, over and over, without pause",cat:"Love",lang:"English",premium:true},
+  {text:"Your love is the anchor that keeps me grounded",cat:"Love",lang:"English",premium:true},
+  {text:"You are proof that dreams really do come true",cat:"Love",lang:"English",premium:true},
+  {text:"Every love story is beautiful, but ours is my favorite",cat:"Love",lang:"English",premium:true},
+  {text:"You are worth all the wait and all the while",cat:"Love",lang:"English",premium:true},
+  {text:"تجھ سے محبت ہے مجھے اس جہاں سے زیادہ",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے بغیر یہ دنیا ویران لگتی ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری یادوں میں جیتا ہوں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"محبت کی کوئی زبان نہیں، بس احساس ہوتا ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تو میری جان، تو میری پہچان",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے ساتھ ہر لمحہ یادگار ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری مسکراہٹ میری دنیا ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"دل کی دھڑکن تیرا نام لیتی ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تجھ سے بچھڑنا ممکن نہیں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری محبت میری طاقت ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تو ہو تو سب ہے، تو نہ ہو تو کچھ نہیں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے عشق میں کھو جانا چاہتا ہوں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری آواز سن کر دل کو سکون ملتا ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"محبت میں پاگل ہونا ضروری ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری ایک جھلک کے لیے ترستا ہوں",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تجھ سے ملنا میری سب سے اچھی عادت ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری مہک میرے ارد گرد ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تجھے دیکھ کر لگتا ہے دنیا خوبصورت ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"میرا دل صرف تیرے لیے دھڑکتا ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے بغیر ہر خوشی ادھوری لگتی ہے",cat:"Love",lang:"Urdu",premium:true}
+,
+  {text:"मुश्किलें आती हैं तो समझो कि तुम खास हो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"हर दिन बेहतर बनने की कोशिश करो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"जो तुम्हें तोड़ नहीं सकता वो तुम्हें मज़बूत बनाता है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"सफलता उनको मिलती है जो रुकते नहीं",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"अपनी ताकत पहचानो और आगे बढ़ो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"जीत उसी की होती है जो हार से नहीं डरता",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"हर सुबह एक नया मौका लेकर आती है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"तुम्हारे अंदर वो ताकत है जो दुनिया बदल सकती है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"बुरे वक्त से मत डरो, यही वक्त तुम्हें बनाता है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"आज का दर्द कल की ताकत बनेगा",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"अपने सपनों पर भरोसा रखो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"जो होता है अच्छे के लिए होता है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"कोशिश करते रहो, एक दिन ज़रूर कामयाब होगे",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"असफलता से मत डरो, कोशिश बंद करने से डरो",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"हर मुश्किल का हल होता है",cat:"Motivational",lang:"Hindi",premium:true},
+  {text:"सोमवार आते ही हफ्ते का सबसे बुरा दिन शुरू",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"खाना खाओ और सो जाओ, यही ज़िंदगी है",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"दोस्त वो जो तुम्हारी बुराई तुम्हारे सामने करे",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"पैसे नहीं हैं पर जीना है",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"नींद आती है ऑफिस में, घर पर नहीं",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"मोबाइल की बैटरी से ज़्यादा मेरी ज़िंदगी चलती है",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"भूख लगती है और पैसे नहीं होते",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"परीक्षा में पास हो जाओ तो क्या चाहिए",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"घर वाले समझते नहीं, दोस्त समझाते नहीं",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"ज़िंदगी वो है जो तुम प्लान नहीं करते",cat:"Funny",lang:"Hindi",premium:true},
+  {text:"তুমি পারবে, শুধু বিশ্বাস রাখো",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"প্রতিটি ব্যর্থতায় একটি পাঠ আছে",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"থামলে চলবে না, এগিয়ে যেতে হবে",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"তোমার স্বপ্নই তোমার শক্তি",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"কঠিন পরিশ্রমের কোনো বিকল্প নেই",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"আজকের কষ্ট আগামীর সুখ",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"হাল ছেড়ো না, মনে রেখো কেন শুরু করেছিলে",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"জীবন সুন্দর, শুধু দেখার দৃষ্টি চাই",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"সাফল্য তাদের জন্য যারা অপেক্ষা করতে জানে",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"নিজেকে প্রতিদিন একটু উন্নত করো",cat:"Motivational",lang:"Bengali",premium:true},
+  {text:"মনের কথা বলার মানুষ নেই",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"একা রাত কাটানো সবচেয়ে কঠিন",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"যাকে বিশ্বাস করলাম সে চলে গেল",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"ভালোবাসা পেলাম না, কষ্ট পেলাম",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"মনে রাখার মানুষ নেই, ভুলে যাওয়াও কঠিন",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"চোখের জল লুকিয়ে হাসতে হয়",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"নিঃসঙ্গতা বড় কষ্টের",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"ভুলতে চাই কিন্তু পারি না",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"হৃদয় ভেঙে গেলেও বাঁচতে হয়",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"প্রিয় মানুষের কথা ভুলতে পারি না",cat:"Sad",lang:"Bengali",premium:true},
+  {text:"You are braver than you believe and stronger than you seem",cat:"Motivational",lang:"English",premium:true},
+  {text:"The only way to do great work is to love what you do",cat:"Motivational",lang:"English",premium:true},
+  {text:"Do not count the days, make the days count",cat:"Motivational",lang:"English",premium:true},
+  {text:"If you can dream it, you can achieve it",cat:"Motivational",lang:"English",premium:true},
+  {text:"Success is not how high you have climbed but how you make a positive difference",cat:"Motivational",lang:"English",premium:true},
+  {text:"It always seems impossible until it is done",cat:"Motivational",lang:"English",premium:true},
+  {text:"Your attitude determines your direction",cat:"Motivational",lang:"English",premium:true},
+  {text:"What you get by achieving your goals is not as important as who you become",cat:"Motivational",lang:"English",premium:true},
+  {text:"Strive not to be a success but rather to be of value",cat:"Motivational",lang:"English",premium:true},
+  {text:"The harder you work the luckier you get",cat:"Motivational",lang:"English",premium:true},
+  {text:"Do something today that your future self will thank you for",cat:"Motivational",lang:"English",premium:true},
+  {text:"You are never too old to set another goal or dream a new dream",cat:"Motivational",lang:"English",premium:true},
+  {text:"Keep your eyes on the stars and your feet on the ground",cat:"Motivational",lang:"English",premium:true},
+  {text:"Opportunities do not happen, you create them",cat:"Motivational",lang:"English",premium:true},
+  {text:"Stop wishing, start doing",cat:"Motivational",lang:"English",premium:true},
+  {text:"I am not arguing, I am just explaining why I am right",cat:"Funny",lang:"English",premium:true},
+  {text:"My bed is a magical place where I suddenly remember everything I forgot",cat:"Funny",lang:"English",premium:true},
+  {text:"I run on caffeine, sarcasm and inappropriate thoughts",cat:"Funny",lang:"English",premium:true},
+  {text:"Life is short, smile while you still have teeth",cat:"Funny",lang:"English",premium:true},
+  {text:"I need a six month vacation twice a year",cat:"Funny",lang:"English",premium:true},
+  {text:"Sleep is my drug, my bed is my dealer",cat:"Funny",lang:"English",premium:true},
+  {text:"I am not lazy, I am in energy saving mode",cat:"Funny",lang:"English",premium:true},
+  {text:"Money cannot buy happiness but it can buy pizza",cat:"Funny",lang:"English",premium:true},
+  {text:"I was not born to work, I was born to nap",cat:"Funny",lang:"English",premium:true},
+  {text:"My mood depends on how good my hair looks today",cat:"Funny",lang:"English",premium:true},
+  {text:"مشکلیں آتی ہیں تو سمجھو کہ تم خاص ہو",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"ہر دن بہتر بننے کی کوشش کرو",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"جو تمہیں توڑ نہیں سکتا وہ تمہیں مضبوط بناتا ہے",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"کامیابی انہیں ملتی ہے جو رکتے نہیں",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"اپنی طاقت پہچانو اور آگے بڑھو",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"جیت اسی کی ہوتی ہے جو ہار سے نہیں ڈرتا",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"ہر صبح ایک نیا موقع لے کر آتی ہے",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"بروقت خواب دیکھنے کا ہمت رکھو",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"کوشش کرتے رہو، ایک دن ضرور کامیاب ہوگے",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"ناکامی سے مت ڈرو، کوشش بند کرنے سے ڈرو",cat:"Motivational",lang:"Urdu",premium:true},
+  {text:"دل کی گہرائیوں میں محبت کا چراغ جلتا رہے",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"اللہ کی رحمت سے کبھی مایوس نہ ہو",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"دعا وہ ہتھیار ہے جو کبھی خالی نہیں جاتا",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"صبر اور شکر زندگی کی بنیاد ہے",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"نماز میں سکون ہے، اسے چھوڑو مت",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"اللہ پر توکل رکھو، وہ سب سے بڑا ہے",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"ہر مصیبت میں اللہ کو یاد کرو",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"قرآن پڑھو، دل کو راحت ملے گی",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"جنت انہیں ملتی ہے جو صبر کرتے ہیں",cat:"Islamic",lang:"Urdu",premium:true},
+  {text:"استغفار کرو، اللہ معاف کرنے والا ہے",cat:"Islamic",lang:"Urdu",premium:true}
+,
+  {text:"तेरी यादें मेरे दिल में बसी हैं हमेशा",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी ज़िंदगी का सबसे अनमोल तोहफा है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"इश्क़ की कोई उम्र नहीं होती",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तेरे बिना मेरी ज़िंदगी अधूरी है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"तू मेरी हर खुशी का सबब है",cat:"Love",lang:"Hindi",premium:true},
+  {text:"তুমি আমার জীবনের সবচেয়ে দামি মানুষ",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার ভালোবাসায় আমি বেঁচে আছি",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি না থাকলে আমি অসম্পূর্ণ",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তোমার হাসিই আমার সুখ",cat:"Love",lang:"Bengali",premium:true},
+  {text:"তুমি আমার পথের আলো",cat:"Love",lang:"Bengali",premium:true},
+  {text:"You are my forever and always",cat:"Love",lang:"English",premium:true},
+  {text:"Love is not just a feeling, it is a choice I make every day for you",cat:"Love",lang:"English",premium:true},
+  {text:"You are the poetry I never knew how to write",cat:"Love",lang:"English",premium:true},
+  {text:"I want to be your last first kiss",cat:"Love",lang:"English",premium:true},
+  {text:"You are the best part of my every day",cat:"Love",lang:"English",premium:true},
+  {text:"تو میری جان، میری پہچان ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے بغیر زندگی بے معنی ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیری محبت میری سب سے بڑی دولت ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تو میری ہر دعا میں ہے",cat:"Love",lang:"Urdu",premium:true},
+  {text:"تیرے ساتھ ہر لمحہ جنت جیسا ہے",cat:"Love",lang:"Urdu",premium:true}
+];
+
+let currentCat='All',currentLang='All',filteredQuotes=[],currentIndex=0;
+let favorites=JSON.parse(localStorage.getItem('quoteFavs')||'[]');
+let isPremium=localStorage.getItem('isPremium')==='true';
+const allQuotes=[...freeQuotes,...premiumQuotes];
+
+function getFiltered(){
+  return allQuotes.filter(q=>{
+    const c=currentCat==='All'||q.cat===currentCat;
+    const l=currentLang==='All'||q.lang===currentLang;
+    return c&&l;
+  });
+}
+
+function showQuote(){
+  filteredQuotes=getFiltered();
+  if(!filteredQuotes.length){document.getElementById('quoteText').textContent='Koi quote nahi!';return;}
+  if(currentIndex>=filteredQuotes.length)currentIndex=0;
+  const q=filteredQuotes[currentIndex];
+  const locked=q.premium&&!isPremium;
+  document.getElementById('lockOverlay').style.display=locked?'flex':'none';
+  document.getElementById('premiumBadge').style.display=q.premium?'block':'none';
+  const el=document.getElementById('quoteText');
+  el.textContent=locked?'Premium quote unlock karo...':q.text;
+  el.className='quote-text'+(q.lang==='Urdu'?' urdu':q.lang==='Bengali'?' bengali':'');
+  const cat=document.getElementById('quoteCat');
+  cat.textContent=q.cat;
+  cat.className='quote-category cat-'+q.cat.toLowerCase();
+  document.getElementById('quoteCounter').textContent=(currentIndex+1)+' / '+filteredQuotes.length;
+  const card=document.getElementById('quoteCard');
+  card.style.animation='none';card.offsetHeight;card.style.animation='fadeIn .4s ease';
+  updateFavBtn();
+}
+
+function nextQuote(){filteredQuotes=getFiltered();currentIndex=(currentIndex+1)%(filteredQuotes.length||1);showQuote();}
+function setCategory(c,btn){currentCat=c;currentIndex=0;document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showQuote();}
+function setLanguage(l,btn){currentLang=l;currentIndex=0;document.querySelectorAll('.lang-chip').forEach(b=>b.classList.remove('active'));btn.classList.add('active');showQuote();}
+
+function shareQuote(){
+  const q=filteredQuotes[currentIndex];
+  if(!q||(q.premium&&!isPremium)){openPayment();return;}
+  const text=q.text+'\n\n✨ Quotes & Status App\n'+window.location.href;
+  if(navigator.share)navigator.share({text});
+  else window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+}
+
+function copyQuote(){
+  const q=filteredQuotes[currentIndex];
+  if(!q||(q.premium&&!isPremium)){openPayment();return;}
+  navigator.clipboard.writeText(q.text).then(()=>showToast('✅ Copy ho gaya!')).catch(()=>showToast('Copy nahi hua'));
+}
+
+function toggleFav(){
+  const q=filteredQuotes[currentIndex];
+  if(!q||(q.premium&&!isPremium)){openPayment();return;}
+  const idx=favorites.findIndex(f=>f.text===q.text);
+  if(idx===-1){favorites.push(q);showToast('❤️ Saved!');}
+  else{favorites.splice(idx,1);showToast('Removed');}
+  localStorage.setItem('quoteFavs',JSON.stringify(favorites));
+  updateFavBtn();
+}
+
+function updateFavBtn(){
+  const q=filteredQuotes[currentIndex];
+  const btn=document.getElementById('favBtn');
+  if(!q)return;
+  const saved=favorites.some(f=>f.text===q.text);
+  btn.textContent=saved?'❤️ Saved!':'❤️ Save';
+  btn.className='btn btn-fav'+(saved?' saved':'');
+}
+
+function openFavs(){
+  const list=document.getElementById('favsList');
+  list.innerHTML=favorites.length===0
+    ?'<div class="no-favs">😕 Koi saved quote nahi!<br><br>❤️ button se save karo!</div>'
+    :favorites.map((f,i)=>`<div class="fav-item"><span>${f.text}</span><button class="fav-delete" onclick="deleteFav(${i})">🗑</button></div>`).join('');
+  document.getElementById('favsModal').classList.add('open');
+}
+function deleteFav(i){favorites.splice(i,1);localStorage.setItem('quoteFavs',JSON.stringify(favorites));openFavs();}
+function closeFavs(){document.getElementById('favsModal').classList.remove('open');}
+
+function openPayment(){document.getElementById('paymentModal').classList.add('open');}
+function closePayment(){document.getElementById('paymentModal').classList.remove('open');}
+
+function openUPI(){
+  const url=`upi://pay?pa=${UPI_ID}&pn=Bappa%20Goswami&am=29&cu=INR&tn=QuotesPremium`;
+  window.location.href=url;
+  setTimeout(()=>showToast('📱 GPay/PhonePe mein payment karo!'),1000);
+}
+
+function copyUPI(){
+  navigator.clipboard.writeText(UPI_ID).then(()=>showToast('✅ UPI ID copy ho gaya: '+UPI_ID)).catch(()=>showToast('UPI: '+UPI_ID));
+}
+
+function confirmPayment(){
+  const txn=document.getElementById('txnInput').value;
+  showToast('✅ Request send ho gayi! 24 ghante mein unlock hoga!');
+  closePayment();
+  setTimeout(()=>showToast('📱 Screenshot WhatsApp pe bhejo confirm ke liye!'),3000);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+showQuote();
+</script>
+</body>
+</html>
