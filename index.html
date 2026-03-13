@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Quotes & Status">
+<title>✨ Quotes & Status</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Sans:wght@400;600&family=Noto+Sans+Bengali&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a1a;
+    --card: #12122a;
+    --accent: #ff4d6d;
+    --accent2: #4d79ff;
+    --gold: #ffd700;
+    --text: #ffffff;
+    --muted: #888aaa;
+    --border: #2a2a4a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(255,77,109,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(77,121,255,0.08) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 20px 20px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,26,0.9);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .fav-btn-header {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .fav-btn-header:active { transform: scale(0.95); background: rgba(255,77,109,0.1); }
+
+  /* Filters */
+  .filters {
+    padding: 14px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .filters::-webkit-scrollbar { display: none; }
+
+  .filter-chip {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Noto Sans', sans-serif;
+  }
+  .filter-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 600;
+  }
+  .filter-chip:active { transform: scale(0.95); }
+
+  /* Language Filter */
+  .lang-filters {
+    padding: 10px 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .lang-filters::-webkit-scrollbar { display: none; }
+
+  .lang-chip {
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .lang-chip.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: white;
+  }
+
+  /* Main Quote Card */
+  .quote-section {
+    flex: 1;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .quote-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 30px 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.4s ease;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .quote-card::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 120px;
+    color: rgba(255,77,109,0.08);
+    line-height: 1;
+  }
+
+  .quote-glow {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--gold));
+    border-radius: 24px 24px 0 0;
+  }
+
+  .quote-text {
+    font-size: 20px;
+    line-height: 1.7;
+    font-weight: 400;
+    color: var(--text);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .quote-text.urdu {
+    font-family: 'Noto Nastaliq Urdu', serif;
+    direction: rtl;
+    font-size: 18px;
+  }
+
+  .quote-text.bengali {
+    font-family: 'Noto Sans Bengali', sans-serif;
+  }
+
+  .quote-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .quote-category {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .quote-counter {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Action Buttons */
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 14px;
+    border-radius: 16px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn:active { transform: scale(0.96); }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--accent), #c9184a);
+    color: white;
+    grid-column: 1 / -1;
+  }
+
+  .btn-share {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: white;
+  }
+
+  .btn-fav {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--accent);
+  }
+  .btn-fav.saved {
+    background: rgba(255,77,109,0.1);
+    border-color: var(--accent);
+  }
+
+  .btn-copy {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--accent2);
+    grid-column: 1 / -1;
+  }
+
+  /* Category Colors */
+  .cat-motivational { background: rgba(255,165,0,0.15); color: #ffa500; }
+  .cat-love { background: rgba(255,77,109,0.15); color: #ff4d6d; }
+  .cat-sad { background: rgba(77,121,255,0.15); color: #4d79ff; }
+  .cat-islamic { background: rgba(0,200,150,0.15); color: #00c896; }
+  .cat-funny { background: rgba(255,220,0,0.15); color: #ffdc00; }
+  .cat-festival { background: rgba(200,100,255,0.15); color: #c864ff; }
+
+  /* Favourites Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border-radius: 24px 24px 0 0;
+    padding: 20px;
+    width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--accent);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+  .fav-item {
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    line-height: 1.6;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .fav-delete {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .no-favs {
+    text-align: center;
+    color: var(--muted);
+    padding: 30px;
+    font-size: 15px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #1e1e3a;
+    border: 1px solid var(--border);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    z-index: 300;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  /* Install Banner */
+  .install-banner {
+    margin: 0 16px 16px;
+    background: linear-gradient(135deg, rgba(77,121,255,0.2), rgba(255,77,109,0.2));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .install-text { font-size: 13px; color: var(--text); }
+  .install-text span { color: var(--accent2); font-weight: 600; }
+
+  .install-btn {
+    background: var(--accent2);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .install-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <header>
+    <div class="logo">✨ Quotes & Status</div>
+    <button class="fav-btn-header" onclick="openFavs()">❤️ Saved</button>
+  </header>
+
+  <!-- Category Filter -->
+  <div class="filters" id="categoryFilters">
+    <button class="filter-chip active" onclick="setCategory('All', this)">🌟 All</button>
+    <button class="filter-chip" onclick="setCategory('Motivational', this)">💪 Motivational</button>
+    <button class="filter-chip" onclick="setCategory('Love', this)">❤️ Love</button>
+    <button class="filter-chip" onclick="setCategory('Sad', this)">💔 Sad</button>
+    <button class="filter-chip" onclick="setCategory('Islamic', this)">🕌 Islamic</button>
+    <button class="filter-chip" onclick="setCategory('Funny', this)">😄 Funny</button>
+    <button class="filter-chip" onclick="setCategory('Festival', this)">🎉 Festival</button>
+  </div>
+
+  <!-- Language Filter -->
+  <div class="lang-filters" id="langFilters">
+    <button class="lang-chip active" onclick="setLanguage('All', this)">🌐 All</button>
+    <button class="lang-chip" onclick="setLanguage('Hindi', this)">🇮🇳 Hindi</button>
+    <button class="lang-chip" onclick="setLanguage('Bengali', this)">🇧🇩 Bengali</button>
+    <button class="lang-chip" onclick="setLanguage('English', this)">🇬🇧 English</button>
+    <button class="lang-chip" onclick="setLanguage('Urdu', this)">🌙 Urdu</button>
+  </div>
+
+  <!-- Install Banner -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-text">📲 <span>Install as App</span> — Home Screen pe add karo!</div>
+    <button class="install-btn" onclick="installApp()">Install</button>
+    <button class="install-close" onclick="document.getElementById('installBanner').style.display='none'">×</button>
+  </div>
+
+  <!-- Quote Section -->
+  <div class="quote-section">
+    <div class="quote-card" id="quoteCard">
+      <div class="quote-glow"></div>
+      <div class="quote-text" id="quoteText">Loading...</div>
+      <div class="quote-meta">
+        <span class="quote-category" id="quoteCat"></span>
+        <span class="quote-counter" id="quoteCounter"></span>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="actions">
+      <button class="btn btn-next" onclick="nextQuote()">▶ Next Quote</button>
+      <button class="btn btn-share" onclick="shareQuote()">📤 WhatsApp Share</button>
+      <button class="btn btn-fav" id="favBtn" onclick="toggleFav()">❤️ Save Favourite</button>
+      <button class="btn btn-copy" onclick="copyQuote()">📋 Copy Quote</button>
+    </div>
+  </div>
+</div>
+
+<!-- Favourites Modal -->
+<div class="modal-overlay" id="favsModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">❤️ Saved Quotes</div>
+      <button class="modal-close" onclick="closeFavs()">×</button>
+    </div>
+    <div id="favsList"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const quotes = [
+  // Hindi - Motivational
+  {text:"जिंदगी में मुश्किलें आती हैं, हिम्मत रखो", cat:"Motivational", lang:"Hindi"},
+  {text:"हर रात के बाद एक सुबह जरूर आती है", cat:"Motivational", lang:"Hindi"},
+  {text:"सपने देखो और उन्हें पूरा करो", cat:"Motivational", lang:"Hindi"},
+  {text:"मेहनत करो, मंजिल जरूर मिलेगी", cat:"Motivational", lang:"Hindi"},
+  {text:"खुद पर भरोसा रखो, दुनिया खुद झुक जाएगी", cat:"Motivational", lang:"Hindi"},
+  {text:"जिंदगी खुद लिखो, दूसरों को मत दो कलम", cat:"Motivational", lang:"Hindi"},
+  // Hindi - Love
+  {text:"तुझसे प्यार है मेरा बेपनाह", cat:"Love", lang:"Hindi"},
+  {text:"तेरी याद में हर पल गुजरता है", cat:"Love", lang:"Hindi"},
+  {text:"तू मेरी जिंदगी की सबसे खूबसूरत कहानी है", cat:"Love", lang:"Hindi"},
+  {text:"तुझे देखूं तो दिल खुश हो जाता है", cat:"Love", lang:"Hindi"},
+  {text:"मेरी हर दुआ में तेरा नाम है", cat:"Love", lang:"Hindi"},
+  // Hindi - Sad
+  {text:"दर्द इतना है दिल में, बयां नहीं होता", cat:"Sad", lang:"Hindi"},
+  {text:"जो छोड़ गए वो याद बहुत आते हैं", cat:"Sad", lang:"Hindi"},
+  {text:"अकेलापन अब दोस्त बन गया है मेरा", cat:"Sad", lang:"Hindi"},
+  {text:"आंखें नम हैं पर मुस्कुराना जरूरी है", cat:"Sad", lang:"Hindi"},
+  {text:"टूटे दिल को जोड़ना बहुत मुश्किल होता है", cat:"Sad", lang:"Hindi"},
+  // Hindi - Islamic
+  {text:"अल्लाह पर भरोसा रखो, सब ठीक होगा", cat:"Islamic", lang:"Hindi"},
+  {text:"सब्र का फल मीठा होता है", cat:"Islamic", lang:"Hindi"},
+  {text:"नमाज पढ़ो, दिल को सुकून मिलेगा", cat:"Islamic", lang:"Hindi"},
+  {text:"अल्लाह की रहमत सबके लिए है", cat:"Islamic", lang:"Hindi"},
+  // Hindi - Funny
+  {text:"हंसते रहो, जिंदगी छोटी है!", cat:"Funny", lang:"Hindi"},
+  {text:"सोमवार को देखकर रोना आता है", cat:"Funny", lang:"Hindi"},
+  {text:"नींद मेरी सबसे अच्छी दोस्त है", cat:"Funny", lang:"Hindi"},
+  // Hindi - Festival
+  {text:"नए साल की ढेर सारी शुभकामनाएं!", cat:"Festival", lang:"Hindi"},
+  {text:"ईद मुबारक, आपको और आपके परिवार को", cat:"Festival", lang:"Hindi"},
+
+  // Bengali - Motivational
+  {text:"জীবনে কঠিন সময় আসে, সাহস রাখো", cat:"Motivational", lang:"Bengali"},
+  {text:"প্রতিটি রাতের পর একটি সুন্দর সকাল আসে", cat:"Motivational", lang:"Bengali"},
+  {text:"স্বপ্ন দেখো এবং সেই স্বপ্ন পূরণ করো", cat:"Motivational", lang:"Bengali"},
+  {text:"পরিশ্রম করো, সাফল্য আসবেই", cat:"Motivational", lang:"Bengali"},
+  {text:"নিজেকে বিশ্বাস করো, জগৎ মাথা নত করবে", cat:"Motivational", lang:"Bengali"},
+  {text:"তোমার জীবন তুমি লেখো", cat:"Motivational", lang:"Bengali"},
+  // Bengali - Love
+  {text:"তোমাকে ভালোবাসি, অসীম ভালোবাসি", cat:"Love", lang:"Bengali"},
+  {text:"তোমার স্মৃতি প্রতিটি মুহূর্তে আছে", cat:"Love", lang:"Bengali"},
+  {text:"তুমি আমার জীবনের সবচেয়ে সুন্দর অধ্যায়", cat:"Love", lang:"Bengali"},
+  {text:"তোমাকে দেখলে মন আনন্দে ভরে যায়", cat:"Love", lang:"Bengali"},
+  {text:"আমার প্রতিটি দোয়ায় তোমার নাম আছে", cat:"Love", lang:"Bengali"},
+  // Bengali - Sad
+  {text:"বুকের ভেতর এত কষ্ট, বলতে পারি না", cat:"Sad", lang:"Bengali"},
+  {text:"যে চলে গেছে তাকে খুব মনে পড়ে", cat:"Sad", lang:"Bengali"},
+  {text:"একাকীত্ব এখন আমার সঙ্গী হয়ে গেছে", cat:"Sad", lang:"Bengali"},
+  {text:"চোখ ভেজা, তবুও হাসতে হয়", cat:"Sad", lang:"Bengali"},
+  {text:"ভাঙা মন জোড়া লাগানো কঠিন", cat:"Sad", lang:"Bengali"},
+  // Bengali - Islamic
+  {text:"আল্লাহর উপর ভরসা রাখো, সব ঠিক হবে", cat:"Islamic", lang:"Bengali"},
+  {text:"ধৈর্যের ফল মিষ্টি হয়", cat:"Islamic", lang:"Bengali"},
+  {text:"নামাজ পড়ো, মনে শান্তি পাবে", cat:"Islamic", lang:"Bengali"},
+  {text:"আল্লাহর রহমত সবার জন্য", cat:"Islamic", lang:"Bengali"},
+  // Bengali - Funny
+  {text:"খুশি থাকো, জীবন ছোট!", cat:"Funny", lang:"Bengali"},
+  {text:"ঘুম আমার সবচেয়ে ভালো বন্ধু", cat:"Funny", lang:"Bengali"},
+  {text:"সোমবার দেখলে মন খারাপ হয়", cat:"Funny", lang:"Bengali"},
+  // Bengali - Festival
+  {text:"ঈদ মোবারক, আপনাকে ও পরিবারকে", cat:"Festival", lang:"Bengali"},
+  {text:"নতুন বছরের শুভেচ্ছা সবাইকে", cat:"Festival", lang:"Bengali"},
+
+  // English - Motivational
+  {text:"Life is tough, but so are you", cat:"Motivational", lang:"English"},
+  {text:"Every day is a new beginning", cat:"Motivational", lang:"English"},
+  {text:"Believe in yourself and you will succeed", cat:"Motivational", lang:"English"},
+  {text:"Hard work always pays off in the end", cat:"Motivational", lang:"English"},
+  {text:"Your only limit is your mind", cat:"Motivational", lang:"English"},
+  // English - Love
+  {text:"You are the reason I smile every day", cat:"Love", lang:"English"},
+  {text:"My heart belongs to you forever", cat:"Love", lang:"English"},
+  {text:"You are my sunshine on a cloudy day", cat:"Love", lang:"English"},
+  {text:"I fall in love with you more every day", cat:"Love", lang:"English"},
+  // English - Sad
+  {text:"Sometimes the heart sees what eyes cannot", cat:"Sad", lang:"English"},
+  {text:"Missing you is my heart's full time job", cat:"Sad", lang:"English"},
+  {text:"Some goodbyes leave marks that never fade", cat:"Sad", lang:"English"},
+  // English - Islamic
+  {text:"Trust Allah, He has the best plan for you", cat:"Islamic", lang:"English"},
+  {text:"Patience is the key to every closed door", cat:"Islamic", lang:"English"},
+  {text:"Pray and leave the rest to Allah", cat:"Islamic", lang:"English"},
+  // English - Funny
+  {text:"Life is short, smile while you have teeth!", cat:"Funny", lang:"English"},
+  {text:"I am not lazy, I am on energy saving mode", cat:"Funny", lang:"English"},
+  // English - Festival
+  {text:"Wishing you a very Happy New Year! 🎉", cat:"Festival", lang:"English"},
+  {text:"Eid Mubarak to you and your family! 🌙", cat:"Festival", lang:"English"},
+
+  // Urdu - Motivational
+  {text:"زندگی میں مشکلیں آتی ہیں، حوصلہ رکھو", cat:"Motivational", lang:"Urdu"},
+  {text:"ہر رات کے بعد ایک صبح ضرور آتی ہے", cat:"Motivational", lang:"Urdu"},
+  {text:"خواب دیکھو اور پورے کرو", cat:"Motivational", lang:"Urdu"},
+  {text:"محنت کرو، منزل ضرور ملے گی", cat:"Motivational", lang:"Urdu"},
+  // Urdu - Love
+  {text:"تجھ سے محبت ہے میری بے پناہ", cat:"Love", lang:"Urdu"},
+  {text:"تیری یاد میں ہر پل گزرتا ہے", cat:"Love", lang:"Urdu"},
+  {text:"تو میری زندگی کی خوبصورت کہانی ہے", cat:"Love", lang:"Urdu"},
+  {text:"میری ہر دعا میں تیرا نام ہے", cat:"Love", lang:"Urdu"},
+  // Urdu - Sad
+  {text:"دل میں اتنا درد ہے، بیان نہیں ہوتا", cat:"Sad", lang:"Urdu"},
+  {text:"جو چھوڑ گئے وہ بہت یاد آتے ہیں", cat:"Sad", lang:"Urdu"},
+  {text:"تنہائی اب میری دوست بن گئی ہے", cat:"Sad", lang:"Urdu"},
+  // Urdu - Islamic
+  {text:"اللہ پر بھروسہ رکھو، سب ٹھیک ہوگا", cat:"Islamic", lang:"Urdu"},
+  {text:"صبر کا پھل میٹھا ہوتا ہے", cat:"Islamic", lang:"Urdu"},
+  {text:"نماز پڑھو، دل کو سکون ملے گا", cat:"Islamic", lang:"Urdu"},
+  // Urdu - Funny
+  {text:"زندگی چھوٹی ہے، ہنستے رہو!", cat:"Funny", lang:"Urdu"},
+  {text:"نیند میری سب سے اچھی دوست ہے", cat:"Funny", lang:"Urdu"},
+  // Urdu - Festival
+  {text:"نیا سال مبارک ہو آپ کو! 🎉", cat:"Festival", lang:"Urdu"},
+  {text:"عید مبارک آپ کو اور گھر والوں کو! 🌙", cat:"Festival", lang:"Urdu"},
+];
+
+let currentCat = 'All';
+let currentLang = 'All';
+let filteredQuotes = [...quotes];
+let currentIndex = 0;
+let favorites = JSON.parse(localStorage.getItem('quoteFavs') || '[]');
+let deferredPrompt;
+
+function getFiltered() {
+  return quotes.filter(q => {
+    const catOk = currentCat === 'All' || q.cat === currentCat;
+    const langOk = currentLang === 'All' || q.lang === currentLang;
+    return catOk && langOk;
+  });
+}
+
+function showQuote() {
+  filteredQuotes = getFiltered();
+  if (filteredQuotes.length === 0) {
+    document.getElementById('quoteText').textContent = 'Koi quote nahi mila!';
+    document.getElementById('quoteCat').textContent = '';
+    document.getElementById('quoteCounter').textContent = '';
+    return;
+  }
+  if (currentIndex >= filteredQuotes.length) currentIndex = 0;
+  const q = filteredQuotes[currentIndex];
+
+  const el = document.getElementById('quoteText');
+  el.textContent = q.text;
+  el.className = 'quote-text';
+  if (q.lang === 'Urdu') el.classList.add('urdu');
+  if (q.lang === 'Bengali') el.classList.add('bengali');
+
+  const catEl = document.getElementById('quoteCat');
+  catEl.textContent = q.cat;
+  catEl.className = 'quote-category cat-' + q.cat.toLowerCase();
+
+  document.getElementById('quoteCounter').textContent = (currentIndex+1) + ' / ' + filteredQuotes.length;
+
+  // Animate card
+  const card = document.getElementById('quoteCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'fadeIn 0.4s ease';
+
+  updateFavBtn();
+}
+
+function nextQuote() {
+  filteredQuotes = getFiltered();
+  currentIndex = (currentIndex + 1) % (filteredQuotes.length || 1);
+  showQuote();
+}
+
+function setCategory(cat, btn) {
+  currentCat = cat;
+  currentIndex = 0;
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showQuote();
+}
+
+function setLanguage(lang, btn) {
+  currentLang = lang;
+  currentIndex = 0;
+  document.querySelectorAll('.lang-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showQuote();
+}
+
+function shareQuote() {
+  const q = filteredQuotes[currentIndex];
+  if (!q) return;
+  const text = q.text + '\n\n— Quotes & Status App se';
+  if (navigator.share) {
+    navigator.share({ text });
+  } else {
+    const url = 'https://wa.me/?text=' + encodeURIComponent(text);
+    window.open(url, '_blank');
+  }
+}
+
+function copyQuote() {
+  const q = filteredQuotes[currentIndex];
+  if (!q) return;
+  navigator.clipboard.writeText(q.text).then(() => showToast('✅ Quote copy ho gaya!')).catch(() => showToast('Copy nahi hua, try again'));
+}
+
+function toggleFav() {
+  const q = filteredQuotes[currentIndex];
+  if (!q) return;
+  const idx = favorites.findIndex(f => f.text === q.text);
+  if (idx === -1) {
+    favorites.push(q);
+    showToast('❤️ Favourite mein save ho gaya!');
+  } else {
+    favorites.splice(idx, 1);
+    showToast('💔 Favourite se hataya gaya');
+  }
+  localStorage.setItem('quoteFavs', JSON.stringify(favorites));
+  updateFavBtn();
+}
+
+function updateFavBtn() {
+  const q = filteredQuotes[currentIndex];
+  const btn = document.getElementById('favBtn');
+  if (!q) return;
+  const saved = favorites.some(f => f.text === q.text);
+  btn.textContent = saved ? '❤️ Saved!' : '❤️ Save Favourite';
+  btn.className = 'btn btn-fav' + (saved ? ' saved' : '');
+}
+
+function openFavs() {
+  const list = document.getElementById('favsList');
+  if (favorites.length === 0) {
+    list.innerHTML = '<div class="no-favs">😕 Abhi koi saved quote nahi hai<br><br>Quotes save karo ❤️ button se!</div>';
+  } else {
+    list.innerHTML = favorites.map((f,i) => `
+      <div class="fav-item">
+        <span>${f.text}</span>
+        <button class="fav-delete" onclick="deleteFav(${i})">🗑</button>
+      </div>
+    `).join('');
+  }
+  document.getElementById('favsModal').classList.add('open');
+}
+
+function deleteFav(i) {
+  favorites.splice(i, 1);
+  localStorage.setItem('quoteFavs', JSON.stringify(favorites));
+  openFavs();
+  updateFavBtn();
+}
+
+function closeFavs() {
+  document.getElementById('favsModal').classList.remove('open');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// PWA Install
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'flex';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBanner').style.display = 'none';
+    });
+  } else {
+    showToast('📲 Browser menu se "Add to Home Screen" karo!');
+  }
+}
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// Init
+showQuote();
+</script>
+</body>
+</html>
